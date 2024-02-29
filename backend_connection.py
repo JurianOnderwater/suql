@@ -35,7 +35,8 @@ from pymongo import MongoClient, ASCENDING
 from datetime import datetime
 
 # set up the MongoDB connection
-CONNECTION_STRING = os.environ.get("COSMOS_CONNECTION_STRING")
+CONNECTION_STRING = os.environ.get("COSMOS_CONNECTION_STRING")  # DONT REALLY NEED THIS ## MAYBE ITS EASIER TO JSUT SET UP A 
+                                                                # DB INSTEAD OF REWRITING THE WHOLE THING TO MAKE USE OF LOCAL 
 
 
 app = Flask(__name__)
@@ -69,10 +70,10 @@ class BackendConnection:
         self,
         greeting = "Hi! How can I help you?") -> None:
         
-        client = MongoClient(CONNECTION_STRING)
+        client = MongoClient(CONNECTION_STRING) #CHANGE TO LOCAL DB 
         self.db = client['yelpbot']  # the database name is yelpbot
-        self.table = self.db['dialog_turns_studies'] # the collection that stores dialog turns
-        self.table.create_index("$**") # necessary to build an index before we can call sort()
+        self.table = self.db['dialog_turns_studies'] # the collection that stores dialog turns ##CREATE OUR OWN OR MODIFY
+        self.table.create_index("$**") # necessary to build an index before we can call sort() ##PROBABLY NEED SOME OTHER DELIMITER
 
         self.greeting = greeting
         
@@ -147,7 +148,7 @@ def chat():
     log["2nd_sql"] = dlgItem.temp_target
     log["db_results"] = json.loads(dlgItem.genie_utterance) if dlgItem.genie_utterance is not None else None
 
-    def pp_time(time_statement):
+    def pp_time(time_statement): # HEHE FUNNY NAME
         return [
             "First classifier: {:.2f}s".format(time_statement["first_classification"]), 
             "Semantic parser: {:.2f}s".format(time_statement["semantic_parser"]),

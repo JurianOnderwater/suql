@@ -1,4 +1,4 @@
-import spacy
+import spacy # NLP lib
 nlp = spacy.load('en_core_web_sm')
 import hashlib
 import tiktoken
@@ -198,7 +198,7 @@ def if_usable_restaurants(field : str):
         "_id",
         "id",
 
-        # schematized fields        
+        # schematized fields    # Bruh why did we not just say to use their data?    
         "ambiance",
         "specials",
         "reservation_info",

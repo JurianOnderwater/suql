@@ -2,7 +2,8 @@
  
 
 """
-GPT-3 + Yelp Genie skill
+GPT-3 + Yelp Genie skill 
+Bro I swear, using our own dataset is more work than the whole other part
 """
 
 import sys

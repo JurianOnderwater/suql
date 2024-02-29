@@ -3,13 +3,13 @@ Functionality to work with .prompt files
 """
 
 from typing import List
-import openai
+# import openai
 from functools import partial
 from concurrent.futures import ThreadPoolExecutor
 import logging
 from typing import List
-import openai
-from openai import OpenAI
+import openai # Maybe rewrite to use gemini or another free one
+from openai import OpenAI 
 client = OpenAI()
 from openai import OpenAIError
 from functools import partial
