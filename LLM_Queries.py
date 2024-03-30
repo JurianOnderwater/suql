@@ -16,7 +16,6 @@ class Assistant:
             tools=[{"type": "code_interpreter"}],
             model="gpt-3.5-turbo",
             file_ids=[]
-            #ID=asst_6zxjQbSHIc3hIcTEsyxRawDM
         )
         self.thread = client.beta.threads.create()
 
@@ -28,7 +27,7 @@ class Assistant:
             file (str): path to the file
         """
         self.assistant_file =   client.beta.assistants.files.create(
-                                assistant_id="asst_6zxjQbSHIc3hIcTEsyxRawDM",
+                                assistant_id=self.assistant.id,
                                 file_id=file
                                 )
     
@@ -55,8 +54,8 @@ class Assistant:
 
 
 
-assistant = Assistant().assistant
-print(assistant)
+assistant = Assistant.assistant
+print(assistant.run.listMessages)
 
 
 
