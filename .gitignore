@@ -148,3 +148,6 @@ error_log.txt
 # test cases for the SUQL compiler
 sql_free_text_support/test_cases.txt
 sql_free_text_support/test_cases_res.txt
+suqlvenv/bin/*
+suqlvenv/share/man/man1/isympy.1
+suqlvenv/pyvenv.cfg
