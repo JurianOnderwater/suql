@@ -1,4 +1,6 @@
 from openai import OpenAI
+from openai import AssistantEventHandler
+from typing_extensions import override
 from time import sleep
 ### Might need to actually retrieve the assistant each time, not sure
 
@@ -8,12 +10,14 @@ class Assistant:
         self.assistant = self.client.beta.assistants.create(
             instructions = """
                             You are a personal restaurant expert. When asked a 
-                            question, check the provided csv file to answer the question.
+                            question, check the provided file to answer the question.
+                            Answer questions in one sentence and do not make up facts.
+                            Do not suggest to make a reservation.
                           """,
             name = "Restaurant Expert",
-            tools = [{"type": "code_interpreter"}],
+            tools = [{"type": "code_interpreter"}, {"type": "retrieval"}],
             model = "gpt-3.5-turbo",
-            file_ids = []
+            # file_ids = []
         )
         self.thread = self.client.beta.threads.create()
         self.assistant_file = None
@@ -25,10 +29,10 @@ class Assistant:
         Args:
             file (str): path to the file
         """
+        file__ = self.client.files.create(file=open(file, "rb"),purpose="assistants")
         self.assistant_file =   self.client.beta.assistants.files.create(
                                 assistant_id=self.assistant.id,
-                                file_id=file
-                                )
+                                file_id=file__.id)
     
     def use_prompts(self, prompts: list):
         """
@@ -50,26 +54,34 @@ class Assistant:
             thread_id = self.thread.id,
             assistant_id = self.assistant.id
             )
-    
-    def get_result(self):
-        # some delay
-        run = self.client.beta.threads.runs.retrieve(run_id=self.run.id, thread_id=self.thread.id)
 
-        messages = self.client.beta.threads.messages.list(self.thread.id)
-        for index, message in enumerate(messages.data):
-            sleep(20)
-            last_message = messages.data[0]
-            response = last_message.content[0].text.value
-            print(index)
-            print(message.role[1], " : " , message.content[0].text.value)
-            print(message.role[0], " : ", response)
-            print("---------------------------------------")
-
-
+            
 assistant = Assistant()
-assistant.use_prompts(prompts=["How old are you?", "What is your purpose?"])
-run = assistant.run()
-print(assistant.get_result())
+assistant.use_file("/Users/jurianonderwater/Downloads/RestaurantReviews.json")
+assistant.use_prompts(prompts=["Show me the first restaurant entry (excluding the column headers)"])
+assistant.run()
+sleep(10)
+# my_assistant = assistant.client.beta.assistants.retrieve("asst_o53Sm9RfC4aDo6rATWyUJzmg")
+# my_thread = assistant.client.beta.threads.retrieve("thread_3b8KBvDvkmn8yF8tZ7H5ebIg")
+my_thread = assistant.client.beta.threads.retrieve(assistant.thread.id)
+
+messages = assistant.client.beta.threads.messages.list(thread_id=my_thread.id)
+
+for thread_message in messages.data:
+    # Iterate over the 'content' attribute of the ThreadMessage, which is a list
+    for content_item in thread_message.content:
+        # Assuming content_item is a MessageContentText object with a 'text' attribute
+        # and that 'text' has a 'value' attribute, print it
+        print(content_item.text.value)
+
+# # print(assistant.client.beta.threads.messages.list(assistant.thread.id))
+# with assistant.client.beta.threads.runs.create_and_stream(
+#   thread_id=my_thread.id,
+# #   assistant_id=assistant.assistant.id,
+#   assistant_id=my_assistant.id,
+#   event_handler=AssistantEventHandler(),
+# ) as stream:
+#   stream.until_done()
 
 
 
