@@ -11,7 +11,7 @@ class Assistant:
             instructions = """
                             You are a personal restaurant expert. When asked a 
                             question, check the provided file to answer the question.
-                            Answer questions in one sentence and do not make up facts.
+                            Answer questions in one sentence if possible and do not make up facts.
                             Do not suggest to make a reservation.
                           """,
             name = "Restaurant Expert",
@@ -55,33 +55,38 @@ class Assistant:
             assistant_id = self.assistant.id
             )
 
-            
 assistant = Assistant()
 assistant.use_file("/Users/jurianonderwater/Downloads/RestaurantReviews.json")
-assistant.use_prompts(prompts=["Show me the first restaurant entry (excluding the column headers)"])
+# assistant.use_prompts(prompts=["Which different restaurants can be considered 'cost effective', or 'cheap', based on the reviews. Search until you find 5"])
+assistant.use_prompts(prompts=["List 5 different restaurants present in the dataset, and summarize their cuisine based on the reviews."])
+print("Starting run ...\n__________________________________________________________________________________")
 assistant.run()
-sleep(10)
-# my_assistant = assistant.client.beta.assistants.retrieve("asst_o53Sm9RfC4aDo6rATWyUJzmg")
-# my_thread = assistant.client.beta.threads.retrieve("thread_3b8KBvDvkmn8yF8tZ7H5ebIg")
-my_thread = assistant.client.beta.threads.retrieve(assistant.thread.id)
+while True:
+    sleep(3)
+    # my_assistant = assistant.client.beta.assistants.retrieve("asst_o53Sm9RfC4aDo6rATWyUJzmg")
+    # my_thread = assistant.client.beta.threads.retrieve("thread_3b8KBvDvkmn8yF8tZ7H5ebIg")
+    my_thread = assistant.client.beta.threads.retrieve(assistant.thread.id)
+    run_status = assistant.client.beta.threads.runs.retrieve(
+        thread_id=assistant.thread.id,
+        run_id=assistant.run.id
+    )
+    if run_status.status == "completed":
+        print("Run is Completed")
+        messages = assistant.client.beta.threads.messages.list(thread_id=my_thread.id)
+        print("__________________________________________________________________________________")
+        for thread_message in messages.data:
+            # Iterate over the 'content' attribute of the ThreadMessage, which is a list
+            for content_item in thread_message.content:
+                # Assuming content_item is a MessageContentText object with a 'text' attribute
+                # and that 'text' has a 'value' attribute, print it
+                print(content_item.text.value)
+        print("__________________________________________________________________________________")
+        break
+    else:
+        print("Run is in progress - Please Wait")
+    continue
 
-messages = assistant.client.beta.threads.messages.list(thread_id=my_thread.id)
 
-for thread_message in messages.data:
-    # Iterate over the 'content' attribute of the ThreadMessage, which is a list
-    for content_item in thread_message.content:
-        # Assuming content_item is a MessageContentText object with a 'text' attribute
-        # and that 'text' has a 'value' attribute, print it
-        print(content_item.text.value)
-
-# # print(assistant.client.beta.threads.messages.list(assistant.thread.id))
-# with assistant.client.beta.threads.runs.create_and_stream(
-#   thread_id=my_thread.id,
-# #   assistant_id=assistant.assistant.id,
-#   assistant_id=my_assistant.id,
-#   event_handler=AssistantEventHandler(),
-# ) as stream:
-#   stream.until_done()
 
 
 
