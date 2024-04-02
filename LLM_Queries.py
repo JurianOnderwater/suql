@@ -4,10 +4,13 @@ from typing_extensions import override
 from time import sleep
 
 class Assistant:
-    def __init__(self) -> None:
+    def __init__(self, asst_id: str, thread_id: str) -> None:
         self.client = OpenAI()
-        self.assistant = self.client.beta.assistants.create(
-            instructions = """
+        if asst_id != None:
+            self.assistant = self.client.beta.assistants.retrieve(asst_id)
+        else:
+            self.assistant = self.client.beta.assistants.create(
+                instructions = """
                             You are a restaurant virtual assistant chatting with a user.
 You can access a restaurant dataset (json file) to retrieve information about restaurants and their reviews. You may incorporate information from user reviews or your own general knowledge in your replies, but DO NOT make up facts about restaurants. Do not repeat yourself. You cannot propose reservations.
 
