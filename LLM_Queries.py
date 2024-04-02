@@ -2,21 +2,26 @@ from openai import OpenAI
 from openai import AssistantEventHandler
 from typing_extensions import override
 from time import sleep
-### Might need to actually retrieve the assistant each time, not sure
 
 class Assistant:
     def __init__(self) -> None:
         self.client = OpenAI()
         self.assistant = self.client.beta.assistants.create(
             instructions = """
-                            You are a personal restaurant expert. When asked a 
-                            question, check the provided file to answer the question.
-                            Answer questions in one sentence if possible and do not make up facts.
-                            Do not suggest to make a reservation.
+                            You are a restaurant virtual assistant chatting with a user.
+You can access a restaurant dataset (json file) to retrieve information about restaurants and their reviews. You may incorporate information from user reviews or your own general knowledge in your replies, but DO NOT make up facts about restaurants. Do not repeat yourself. You cannot propose reservations.
+
+In your response, first accurately tell the user what query you have searched for (if you have searched for anything), then tell the user the result.
+
+If you did not check the json file, even though the user made a restaurant request, you should tell the user that you couldn't help them with that request.
+
+The number of returned results might not match exactly what you have searched for. In this case, do not make up additional restaurants and only report returned results.
+
+The json file is formatted as a dictionairy with the restaurant name as the key, and the value is a list of reviews.
                           """,
             name = "Restaurant Expert",
             tools = [{"type": "code_interpreter"}, {"type": "retrieval"}],
-            model = "gpt-3.5-turbo",
+            model = "gpt-4-turbo-preview",
             # file_ids = []
         )
         self.thread = self.client.beta.threads.create()
@@ -56,9 +61,9 @@ class Assistant:
             )
 
 assistant = Assistant()
-assistant.use_file("/Users/jurianonderwater/Downloads/RestaurantReviews.json")
+assistant.use_file("/Users/jurianonderwater/Downloads/truncated-reviews.json")
 # assistant.use_prompts(prompts=["Which different restaurants can be considered 'cost effective', or 'cheap', based on the reviews. Search until you find 5"])
-assistant.use_prompts(prompts=["List 5 different restaurants present in the dataset, and summarize their cuisine based on the reviews."])
+assistant.use_prompts(prompts=["Choose five different restaurants in the json file and list whether the reviews for that restaurant say anything about them being family friendly."])
 print("Starting run ...\n__________________________________________________________________________________")
 assistant.run()
 while True:
