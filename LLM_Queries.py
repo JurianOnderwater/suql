@@ -4,13 +4,8 @@ from typing_extensions import override
 from time import sleep
 
 class Assistant:
-    def __init__(self, asst_id: str, thread_id: str) -> None:
-        self.client = OpenAI()
-        if asst_id != None:
-            self.assistant = self.client.beta.assistants.retrieve(asst_id)
-        else:
-            self.assistant = self.client.beta.assistants.create(
-                instructions = """
+    def __init__(self, asst_id: str) -> None:
+        self.instructions = """
                             You are a restaurant virtual assistant chatting with a user.
 You can access a restaurant dataset (json file) to retrieve information about restaurants and their reviews. You may incorporate information from user reviews or your own general knowledge in your replies, but DO NOT make up facts about restaurants. Do not repeat yourself. You cannot propose reservations.
 
@@ -20,11 +15,19 @@ If you did not check the json file, even though the user made a restaurant reque
 
 The number of returned results might not match exactly what you have searched for. In this case, do not make up additional restaurants and only report returned results.
 
-The json file is formatted as a dictionairy with the restaurant name as the key, and the value is a list of reviews.
-                          """,
+The provided json file is a list containing data about restaurants. Each entry contains the following fields: 
+    "Name", "Location", "Price", "Open", "Rating", "Reviews"
+"""
+        self.client = OpenAI()
+        if asst_id != None:
+            self.assistant = self.client.beta.assistants.retrieve(asst_id)
+            self.assistant = self.client.beta.assistants.update(asst_id, instructions=self.instructions)
+        else:
+            self.assistant = self.client.beta.assistants.create(
+                instructions = self.instructions,
             name = "Restaurant Expert",
             tools = [{"type": "code_interpreter"}, {"type": "retrieval"}],
-            model = "gpt-4-turbo-preview",
+            model = "gpt-3.5-turbo",
             # file_ids = []
         )
         self.thread = self.client.beta.threads.create()
@@ -63,10 +66,10 @@ The json file is formatted as a dictionairy with the restaurant name as the key,
             assistant_id = self.assistant.id
             )
 
-assistant = Assistant()
-assistant.use_file("/Users/jurianonderwater/Downloads/truncated-reviews.json")
+assistant = Assistant(asst_id="asst_JwP2UdeXqgPqrt2x9G9YqxxB")
+assistant.use_file("/Users/jurianonderwater/Downloads/structured.json")
 # assistant.use_prompts(prompts=["Which different restaurants can be considered 'cost effective', or 'cheap', based on the reviews. Search until you find 5"])
-assistant.use_prompts(prompts=["Choose five different restaurants in the json file and list whether the reviews for that restaurant say anything about them being family friendly."])
+assistant.use_prompts(prompts=["First filter out all the restaurants that are located in amsterdam, and print list them, using the 'Location' attribute. After that, choose 5 of the restaurants you just found and report whether the reviews for that restaurant say anything about them being family friendly, using the reviews in the 'Reviews' attribute "])
 print("Starting run ...\n__________________________________________________________________________________")
 assistant.run()
 while True:
