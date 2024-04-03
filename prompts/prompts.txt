@@ -1,0 +1,3 @@
+"Please filter out all the restaurants located in Oslo using the "Location" attribute. Don't print this yet"
+"Check the restaurants you just filtered and list what their rating is, based on the Rating attribute in the file. Discard the restaurants that are rated lower than 3.5."
+"Then, choose 5 of the restaurants you just filtered and list their best dish, based on their reviews in the 'Review' attribute. Print their names."
